@@ -41,14 +41,28 @@ namespace Introu.Pipeline
                         pi => (pi, (StageAttribute?)Attribute.GetCustomAttribute(pi, typeof(StageAttribute))));
                 }).Where(memAtt => memAtt.Item2 is not null).OrderBy(memAtt => memAtt.Item2!.StageNumber);
 
+            // Ensure pipeline is even valid before beginning to process anything.
+            int? previousStageNumber = null;
             foreach (var stage in orderedStages)
             {
                 OneOf<FieldInfo, PropertyInfo> field = stage.Item1;
                 StageAttribute attr = stage.Item2!; // Not null assumption is safe given above .Where()
 
                 string name = field.Match(fi => fi.Name, pi => pi.Name);
-                Console.WriteLine($"Stage #{attr.StageNumber} = Field [{name}]");
+
+                // Check for duplicate step numbers.
+                if (previousStageNumber is not null && attr.StageNumber == previousStageNumber)
+                {
+                    string errMsg = $"Multiple stages exist with step #{previousStageNumber}";
+                    Console.WriteLine(errMsg);
+                    throw new InvalidOperationException(errMsg);
+                }
+
+                Console.WriteLine($"Stage #{attr.StageNumber} = Field [{name}] is valid.");
+                previousStageNumber = attr.StageNumber;
             }
+
+            Console.WriteLine("Completed successfully.");
         }
     }
 }
