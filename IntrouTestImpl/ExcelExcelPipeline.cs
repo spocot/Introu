@@ -1,4 +1,5 @@
-﻿using Introu.Attributes;
+﻿using Introu.Abstractions;
+using Introu.Attributes;
 using Introu.Pipeline;
 using System;
 using System.Collections.Generic;
@@ -12,23 +13,28 @@ namespace IntrouTestImpl
     internal class ExcelExcelPipeline : PipelineBase
     {
         [Stage(1)]
-        public string T1 = "1";
+        public StringStringTransformer T1;
 
         [Stage(2)]
-        public string T2 = "2";
+        public IIntrouTransformer<string, string> T2;
 
         [Stage(3)]
-        public string T3 = "3";
+        public IIntrouTransformer<string, string> T3;
 
         [Stage(4)]
-        public string T4 = "4";
+        public IIntrouTransformer<string, string> T4;
 
         [Stage(5)]
-        public string T5 { get; set; }
+        public StringStringTransformer T5 { get; set; }
 
         public ExcelExcelPipeline()
         {
-            T5 = "5";
+            var sst = new StringStringTransformer();
+            T1 = sst;
+            T2 = sst;
+            T3 = sst;
+            T4 = sst;
+            T5 = sst;
         }
     }
 }

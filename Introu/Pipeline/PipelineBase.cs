@@ -1,4 +1,6 @@
-﻿using Introu.Attributes;
+﻿using Introu.Abstractions;
+using Introu.Attributes;
+using Introu.Extensions;
 using OneOf;
 using System;
 using System.Collections.Generic;
@@ -54,6 +56,14 @@ namespace Introu.Pipeline
                 if (previousStageNumber is not null && attr.StageNumber == previousStageNumber)
                 {
                     string errMsg = $"Multiple stages exist with step #{previousStageNumber}";
+                    Console.WriteLine(errMsg);
+                    throw new InvalidOperationException(errMsg);
+                }
+
+                // Ensure each stage is an IIntrouTransformer
+                if (!field.Match(fi => fi.FieldType, pi => pi.PropertyType).ImplementsGenericInterface(typeof(IIntrouTransformer<,>)))
+                {
+                    string errMsg = $"Stage #{attr.StageNumber} - [{name}] does not implement {typeof(IIntrouTransformer<,>)}";
                     Console.WriteLine(errMsg);
                     throw new InvalidOperationException(errMsg);
                 }
